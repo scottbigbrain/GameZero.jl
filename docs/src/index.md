@@ -21,6 +21,21 @@ julia> rungame("C:\\path\\to\\game\\Spaceship\\Spaceship.jl")
 
 ```
 
+Alternatively, you can run your game more directly by writing the code differently. To do so, go to your game code and add at the top:
+```julia
+using GameZero
+import GameZero.draw
+using Colors
+```
+Then add to the bottom:
+```julia
+rungame()
+```
+You then can run the game through the terminal by navigating to your game's folder and running:
+```
+julia yourgame.jl
+```
+
 ## Assets
 ![](assets/directory_structure.png)
 
