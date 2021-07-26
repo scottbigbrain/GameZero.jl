@@ -155,6 +155,16 @@ getPos(::Val{:bottom}, s::Triangle) = min(s.p1[2], s.p2[2], s.p3[2])
 getPos(::Val{:centerx}, s::Triangle) = (s.p1[1] + s.p2[1] + s.p3[1]) / 3
 getPos(::Val{:centery}, s::Triangle) = (s.p1[2] + s.p2[2] + s.p3[2]) / 3
 
+# FIXME: Do we need getPos? If we do, then maybe this should belong in
+# utility.jl and convert the array to tuples.
+getPos(::Val{:center}, s::Triangle) = (s.p1 + s.p2 + s.p3) / 3
+getPos(::Val{:left}, s::Triangle) = min(s.p1[1], s.p2[1], s.p3[1])
+getPos(::Val{:right}, s::Triangle) = max(s.p1[1], s.p2[1], s.p3[1])
+getPos(::Val{:top}, s::Triangle) = max(s.p1[2], s.p2[2], s.p3[2])
+getPos(::Val{:bottom}, s::Triangle) = min(s.p1[2], s.p2[2], s.p3[2])
+getPos(::Val{:centerx}, s::Triangle) = (s.p1[1] + s.p2[1] + s.p3[1]) / 3
+getPos(::Val{:centery}, s::Triangle) = (s.p1[2] + s.p2[2] + s.p3[2]) / 3
+
 getPos(::Val{:center}, s::Circle, u, v) = (u, v)
 getPos(::Val{:top}, s::Circle, v) = (s.x, v-s.r)
 getPos(::Val{:bottom}, s::Circle, v) = (s.x, v+s.r)
