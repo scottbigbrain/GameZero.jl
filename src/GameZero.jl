@@ -2,7 +2,7 @@ module GameZero
 using Colors
 using Random
 
-export Actor, Game, game, draw, schduler, schedule_once, schedule_interval, schedule_unique, unschedule,
+export Actor, TextActor, Game, game, draw, schduler, schedule_once, schedule_interval, schedule_unique, unschedule,
         collide, angle, distance, play_music, play_sound, line, clear, rungame, game_include
 export Keys, MouseButtons, KeyMods
 export Line, Rect, Triangle, Circle
@@ -22,9 +22,6 @@ include("actor.jl")
 const HEIGHTSYMBOL = :HEIGHT
 const WIDTHSYMBOL = :WIDTH
 const BACKSYMBOL = :BACKGROUND
-const LOCATION = pwd()
-
-
 
 mutable struct Game
     screen::Screen
@@ -59,9 +56,6 @@ const game = Ref{Game}()
 const playing = Ref{Bool}(false)
 const paused = Ref{Bool}(false)
 
-function __init__()
-
-end
 
 function initscreen(gm::Module, name::String)
     h = getifdefined(gm, HEIGHTSYMBOL, 400)
@@ -104,7 +98,7 @@ function mainloop(g::Game)
 
       # Render
       #if (debug && debugText) renderFPS(renderer,last_10_frame_times) end
-        SDL2.RenderClear(g.screen.renderer)
+        clear(g.screen)
         Base.invokelatest(g.render_function, g)
         SDL2.RenderPresent(g.screen.renderer)
 
@@ -182,7 +176,21 @@ getMouseClickY(e) = bitcat(Int32, e[28:-1:25])
 getMouseMoveX(e) = bitcat(Int32, e[24:-1:21])
 getMouseMoveY(e) = bitcat(Int32, e[28:-1:25])
 
+"""
+    `rungame(game_file::String)`
+    `rungame()`
+
+    The entry point to GameZero. This is the user-facing function that is used to start a game. 
+    The single argument method should be used from the REPL or main script. It takes the game source
+    file as it's only argument. 
+
+    The zero argument method should be used from the game source file itself when is being executed directly
+"""
 function rungame(jlf::String, external::Bool=true)
+    # The optional argument `external` is used to determine whether the zero or single argument version 
+    # has been called. End users should never have to use this argument directly. 
+    # external=true means rungame has been called from the REPl or run script, with the game file as input
+    # external=false means rungame has been called at the bottom of the game file itself
     global playing, paused
     g = initgame(jlf::String, external)
     try
@@ -206,21 +214,20 @@ function initgame(jlf::String, external::Bool)
         ArgumentError("File not found: $jlf")
     end
     name = titlecase(replace(basename(jlf), ".jl"=>""))
-    if external
-        module_name = Symbol(name*"_"*randstring(5))
-        game_module = Module(module_name)
-        @debug "Initialised Anonymous Game Module" module_name
-    end
     initSDL()
     game[] = Game()
     scheduler[] = Scheduler()
     g = game[]
-    g.location = dirname(jlf)
     g.keyboard = Keyboard()
     if external 
+        module_name = Symbol(name*"_"*randstring(5))
+        game_module = Module(module_name)
+        @debug "Initialised Anonymous Game Module" module_name
         g.game_module = game_module 
+        g.location = dirname(jlf)
     else 
         g.game_module = Main 
+        g.location = pwd()
     end
 
     if external

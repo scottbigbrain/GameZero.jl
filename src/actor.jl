@@ -12,12 +12,37 @@ end
 """
 `Actor(image::String)`
 
-Creates an Actor with the image given, which must be located in the `image` subdirectory.
+Creates an Actor with the image given, which must be located in the `images` subdirectory.
 """
 function Actor(image::String; kv...)
     sf=image_surface(image)
     w, h = size(sf)
     a = Actor(image, sf, Rect(0, 0, Int(w), Int(h)), [1.0, 1.0], 0, 255, Dict{Symbol,Any}())
+
+    for (k, v) in kv
+        setproperty!(a, k, v)
+    end
+    return a
+end
+
+"""
+    TextActor(text::String, font_name::String; font_size=24, color=Int[255,255,0,255])
+
+Creates an actor with text rendered using font font_name. Font should be located in fonts directory. 
+"""
+function TextActor(text::String, font_name::String; font_size=24, color=Int[255,255,0,255], kv...)
+    font = SDL2.TTF_OpenFont(file_path(font_name, :fonts), font_size)
+    sf = SDL2.TTF_RenderText_Blended(font, text, SDL2.Color(color...))
+    w, h = size(sf)
+    a = Actor(
+        text, 
+        sf, 
+        Rect(0, 0, Int(w), Int(h)), 
+        [1.,1.], 
+        0,
+        255,
+        Dict{Symbol,Any}()
+    )
 
     for (k, v) in kv
         setproperty!(a, k, v)
